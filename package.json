@@ -19,5 +19,8 @@
     "facebook",
     "core"
   ],
-  "license": "Facebook Platform License"
+  "license": "Facebook Platform License",
+  "dependencies": {
+    "isomorphic-fetch": "^2.2.1"
+  }
 }

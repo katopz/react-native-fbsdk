@@ -32,6 +32,7 @@ import {
 const {
   LoginButton,
   ShareDialog,
+  AccessToken,
 } = FBSDK;
 
 class HelloFacebook extends Component {
@@ -50,13 +51,13 @@ class HelloFacebook extends Component {
   shareLinkWithShareDialog() {
     var tmp = this;
     ShareDialog.canShow(this.state.shareLinkContent).then(
-      function(canShow) {
+      function (canShow) {
         if (canShow) {
           return ShareDialog.show(tmp.state.shareLinkContent);
         }
       }
     ).then(
-      function(result) {
+      function (result) {
         if (result.isCancelled) {
           alert('Share cancelled');
         } else {
@@ -64,16 +65,49 @@ class HelloFacebook extends Component {
             + result.postId);
         }
       },
-      function(error) {
+      function (error) {
         alert('Share fail with error: ' + error);
       }
-    );
+      );
   }
 
   render() {
     return (
       <View style={styles.container}>
-        <LoginButton />
+        <LoginButton
+          onLoginFinished={
+            (error, result) => {
+              if (error) {
+                alert("login has error: " + result.error);
+              } else if (result.isCancelled) {
+                alert("login is cancelled.");
+              } else {
+                AccessToken.getCurrentAccessToken().then(
+                  (data) => {
+                    // TODO : Handle bad token
+                    const access_token = data.accessToken.toString()
+                    console.log('access_token :', access_token)
+
+                    // TODO : Secure header?
+                    access_token && fetch(`http://localhost:3000/auth/facebook/token?access_token=${access_token}`/*,
+                      {
+                        method: 'post',
+                        body: `access_token=${access_token}`
+                      }
+                    */).then((response) => {
+                      if (response.status >= 400) {
+                        throw new Error("Bad response from server");
+                      }
+                      return response.json();
+                    }).then((result) => {
+                      console.log(result);
+                    })
+                  }
+                )
+              }
+            }
+          }
+          onLogoutFinished={() => alert("logout.")} />
         <TouchableHighlight style={styles.share}
           onPress={this.shareLinkWithShareDialog.bind(this)}>
           <Text style={styles.shareText}>Share link with ShareDialog</Text>
