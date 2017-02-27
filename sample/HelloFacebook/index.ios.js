@@ -89,18 +89,20 @@ class HelloFacebook extends Component {
                     console.log('access_token :', access_token)
 
                     // TODO : Secure header?
-                    access_token && fetch(`http://localhost:3000/auth/facebook/token?access_token=${access_token}`/*,
+                    access_token && fetch(`http://localhost:3000/auth/facebook/token`,
                       {
                         method: 'post',
-                        body: `access_token=${access_token}`
+                        headers: {
+                          'Authorization': `Bearer ${access_token}`
+                        }
                       }
-                    */).then((response) => {
+                    ).then((response) => {
                       if (response.status >= 400) {
                         throw new Error("Bad response from server");
                       }
-                      return response.json();
-                    }).then((result) => {
-                      console.log(result);
+                      return response.text();
+                    }).then((text) => {
+                      console.log(text);
                     })
                   }
                 )
